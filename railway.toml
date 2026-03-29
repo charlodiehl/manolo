@@ -1,0 +1,11 @@
+[build]
+  watchPatterns = ["backend/**"]
+
+[[services]]
+  name = "manolo-backend"
+  buildCommand = "pip install -r backend/requirements.txt"
+  startCommand = "cd backend && python main.py"
+  healthcheckPath = "/health"
+
+[services.variables]
+  PORT = "8000"

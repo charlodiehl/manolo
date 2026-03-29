@@ -1,0 +1,5 @@
+export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const r = await fetch(`${process.env.BACKEND_URL ?? "http://127.0.0.1:8000"}/conversations/${encodeURIComponent(id)}`);
+  return Response.json(await r.json());
+}
