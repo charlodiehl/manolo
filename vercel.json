@@ -1,10 +1,5 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
-  "framework": "nextjs",
-  "env": {
-    "BACKEND_URL": "@backend_url",
-    "ELEVENLABS_API_KEY": "@elevenlabs_api_key",
-    "ELEVENLABS_VOICE_ID": "@elevenlabs_voice_id"
-  }
+  "framework": "nextjs"
 }
