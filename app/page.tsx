@@ -264,7 +264,7 @@ function VoiceCall({ sessionId, onClose }: { sessionId: string; onClose: () => v
   async function chat(text: string) {
     setPhaseAll("thinking");
     queue.current = []; llmDone.current = false;
-    let buf = "", sentBuf = "";
+    let buf = "", sentBuf = "", fullReply = "";
 
     const flush = (force = false) => {
       const s = sentBuf.trim(); if (!s) return;
@@ -289,7 +289,7 @@ function VoiceCall({ sessionId, onClose }: { sessionId: string; onClose: () => v
           try {
             const d = JSON.parse(line.slice(6));
             if (d.chunk) {
-              sentBuf += d.chunk;
+              sentBuf += d.chunk; fullReply += d.chunk;
               const m = sentBuf.match(/^([\s\S]*?[.!?])\s+([\s\S]*)$/);
               if (m && m[1].trim().split(/\s+/).length >= 4) {
                 queue.current.push(m[1].trim()); sentBuf = m[2]; dequeue();
@@ -300,18 +300,39 @@ function VoiceCall({ sessionId, onClose }: { sessionId: string; onClose: () => v
         }
       }
       flush(true); llmDone.current = true;
-      if (!playing.current && !queue.current.length) listen();
-    } catch { setPhaseAll("idle"); }
+      if (!playing.current && !queue.current.length) {
+        // Si LLM respondió vacío, decir fallback y volver a escuchar
+        if (!fullReply) { queue.current.push("No te escuché bien, repetime."); }
+        dequeue();
+      }
+    } catch {
+      queue.current.push("Perdoná, hubo un problema. ¿Me repetís?");
+      llmDone.current = true; dequeue();
+    }
   }
 
   /* ── speech recognition ── */
+  const listenRetries = useRef(0);
   function listen() {
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition; // eslint-disable-line
     if (!SR) { setPhaseAll("idle"); return; }
     const rec = new SR(); rec.lang = "es-AR"; rec.continuous = false; rec.interimResults = false;
-    rec.onresult = (e: any) => { const t = e.results[0][0].transcript; setTranscript(t); chat(t); }; // eslint-disable-line
-    rec.onerror  = () => setPhaseAll("idle");
-    rec.onend    = () => { if (phaseRef.current === "listening") setPhaseAll("idle"); };
+    rec.onresult = (e: any) => {
+      listenRetries.current = 0;
+      const t = e.results[0][0].transcript; setTranscript(t); chat(t); // eslint-disable-line
+    };
+    rec.onerror  = () => { setPhaseAll("idle"); };
+    rec.onend    = () => {
+      if (phaseRef.current !== "listening") return;
+      // Sin resultado: reintentar hasta 3 veces, después idle
+      if (listenRetries.current < 3) {
+        listenRetries.current++;
+        setTimeout(listen, 300);
+      } else {
+        listenRetries.current = 0;
+        setPhaseAll("idle");
+      }
+    };
     srRef.current = rec;
     setPhaseAll("listening"); rec.start();
   }
