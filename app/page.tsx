@@ -28,7 +28,7 @@ interface ConvSession { session_id: string; msg_count: number; started_at: strin
 interface ConvMsg { role: string; content: string; created_at: string }
 
 const SESSION_ID = `s_${Date.now()}`;
-const GREETING = "Hola Carlos, soy Manolo. Tengo el mercado monitoreado. Hay oportunidades desde treinta y ocho mil dólares. ¿Arrancamos?";
+const GREETING = "Buenas, con Manolo. Vi tu publicación del Mustang GT en MercadoLibre. ¿Todavía está disponible?";
 
 /* ─── Helpers ────────────────────────────────────────────────────────────── */
 const glass: React.CSSProperties = {
@@ -392,7 +392,7 @@ function VoiceCall({ sessionId, onClose }: { sessionId: string; onClose: () => v
   /* ── auto-start: Manolo habla primero, después escucha ── */
   useEffect(() => {
     const t = setTimeout(() => {
-      queue.current.push("Hola Carlos, te escucho. Contame.");
+      queue.current.push("Buenas, con Manolo. Vi tu Mustang GT en Mercado Libre. ¿Sigue disponible?");
       llmDone.current = true; // cuando termine el saludo → listen()
       dequeue();
     }, 400);
