@@ -14,7 +14,7 @@ from pydantic import BaseModel
 from typing import Optional, AsyncGenerator
 from langchain_core.messages import HumanMessage
 from agent import graph
-from db import (get_leads, get_memory, save_config, get_config,
+from db import (get_leads, save_config, get_config,
                 log_conversation_message, get_conversation_sessions,
                 get_conversation_messages, log_search, update_lead_status)
 

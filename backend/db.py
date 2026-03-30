@@ -183,6 +183,16 @@ def log_search(query: str, count: int):
         with _conn() as c:
             c.execute("INSERT INTO search_log (query,results_count,searched_at) VALUES (?,?,?)", (query,count,now))
 
+# ── backwards-compat aliases ───────────────────────────────────────────────────
+def get_memory(key, default=None):
+    return _get_mem(key, default)
+
+def set_memory(key, value):
+    _set_mem(key, value)
+
+def log_contact(lead_id, method, message, response=""):
+    pass  # no-op — contact logging handled via conversations table
+
 # ── init ───────────────────────────────────────────────────────────────────────
 def ensure_image_url_column():
     if not _use_supabase():
