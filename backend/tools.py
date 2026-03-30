@@ -3,7 +3,7 @@ Herramientas del agente Manolo.
 """
 import os, httpx, json, re
 from langchain_core.tools import tool
-from db import save_lead, get_leads, update_lead_status, log_contact, set_memory, get_memory
+from db import save_lead, get_leads, update_lead_status
 
 BLUE_RATE = 1420  # ARS/USD
 
